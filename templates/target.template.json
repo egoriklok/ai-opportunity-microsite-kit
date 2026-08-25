@@ -15,7 +15,6 @@
     "bio": "Replace this placeholder with a concise, evidence-based professional summary.",
     "locationTimezone": "Location · UTC+0",
     "contact": {
-      "email": "candidate@example.com",
       "profileUrl": "https://example.com/profile"
     },
     "proofLinks": [

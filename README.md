@@ -16,6 +16,16 @@ The kit is designed for job seekers, operators, and consultants who want to demo
 - **Safe by default:** generated sites use `noindex, nofollow`, contain no tracking, and outreach remains draft-only.
 - **Internet-capable:** optional [Agent Reach](https://github.com/Panniantong/Agent-Reach) integration gives shell-capable agents sanitized, version-pinned upstream route status for public research.
 
+## One URL, one isolated Codex project
+
+The recommended operating model is **one prospective customer = one new workspace**. Keep the framework as a pinned dependency; never mix a new target with the framework checkout or another customer's files.
+
+After a one-time private candidate profile is saved at `~/.codex/aomk/candidate-profile.json`, open an empty customer folder in Codex and paste one prompt containing the company URL. The agent can install the pinned kit, perform public research, build and validate `target.json`, render a local preview, inspect it, and report evidence gaps. It must not invent identity fields.
+
+Copy-ready Russian and English prompts, the private profile shape, one-time skill installation, and the expected outputs are in [docs/codex-one-prompt.md](./docs/codex-one-prompt.md). Those prompts explicitly request a Codex goal. The skill does not create a formal goal when the user has not requested one.
+
+The one-prompt default authorizes only public research and local preview files. Publishing, sending, contacting anyone, external drafts, CRM access, contact enrichment, and Agent Reach each require a later, separate, explicit approval.
+
 ## Quick start
 
 Requirements: Node.js 20 or newer and npm.
@@ -31,12 +41,21 @@ node ./src/cli.mjs validate ./targets/acme/target.json
 node ./src/cli.mjs render ./targets/acme/target.json --out ./dist/acme --preview
 ```
 
-To consume the latest reviewed GitHub version without cloning:
+To consume the reviewed GitHub version without cloning:
 
 ```bash
-npm install --save-dev github:egoriklok/ai-opportunity-microsite-kit#v0.1.0
+npm install --save-dev github:egoriklok/ai-opportunity-microsite-kit#v0.2.0
+npx aomk codex install --skills-dir "$HOME/.codex/skills" --json
 npx aomk --help
 ```
+
+Inside an empty, customer-specific workspace, the agent uses the scaffold command below before research:
+
+```bash
+npx aomk workspace init https://example.com --out . --profile "$HOME/.codex/aomk/candidate-profile.json" --locale en --intent collaboration --policy collaboration-cold-v1 --json
+```
+
+`workspace init` is scaffold-only: it never researches, validates, renders, publishes, sends, initializes Git, or calls Agent Reach.
 
 For multi-channel public research, install Agent Reach separately and explicitly. The kit is tested against `v1.5.0`; it never installs or configures Agent Reach itself.
 
@@ -59,7 +78,7 @@ Open `dist/acme/public/index.html` locally after replacing every illustrative fi
 
 ## Agent workflow
 
-Agents should read [skill/SKILL.md](./skill/SKILL.md). The core sequence is:
+Agents should read [skill/SKILL.md](./skill/SKILL.md). For a URL-only Codex run, they must also read [skill/references/one-prompt-workflow.md](./skill/references/one-prompt-workflow.md). The core sequence is:
 
 ```text
 target screen
@@ -98,7 +117,7 @@ This repository ships only with the fictional `NordForm Machines` fixture. Never
 
 ## Project status
 
-`0.1.0` is an early public release. The JSON contract and CLI behavior may evolve before `1.0.0`; changes will be documented in releases.
+`0.2.0` is an early public release. The JSON contract and CLI behavior may evolve before `1.0.0`; changes will be documented in releases.
 
 ## Contributing and security
 

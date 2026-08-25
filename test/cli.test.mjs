@@ -20,12 +20,80 @@ function captureIo() {
 test("CLI help and version expose stable commands", async () => {
   const helpIo = captureIo();
   assert.equal(await main(["--help"], helpIo), EXIT.OK);
+  assert.match(helpIo.stdoutText, /aomk workspace init/);
+  assert.match(helpIo.stdoutText, /aomk codex install/);
   assert.match(helpIo.stdoutText, /aomk reach doctor/);
   assert.match(helpIo.stdoutText, /Only <directory>\/public is publishable/);
 
   const versionIo = captureIo();
   assert.equal(await main(["--version"], versionIo), EXIT.OK);
-  assert.match(versionIo.stdoutText, /^0\.1\.0/);
+  assert.match(versionIo.stdoutText, /^0\.2\.0/);
+});
+
+test("CLI installs the public Codex skill only into an explicit directory", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "aomk-cli-skill-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const skillsDir = join(root, "Codex Skills");
+
+  const installIo = captureIo();
+  assert.equal(
+    await main(["codex", "install", "--skills-dir", skillsDir, "--json"], installIo),
+    EXIT.OK,
+  );
+  const result = JSON.parse(installIo.stdoutText);
+  assert.equal(result.status, "installed");
+  assert.match(
+    await readFile(join(result.skillDir, "agents", "openai.yaml"), "utf8"),
+    /\$create-ai-opportunity-microsite/,
+  );
+
+  const usageIo = captureIo();
+  assert.equal(await main(["codex", "install"], usageIo), EXIT.USAGE);
+  assert.match(usageIo.stderrText, /USAGE_ERROR/);
+
+  const unknownFlagIo = captureIo();
+  assert.equal(
+    await main(["codex", "install", "--skills-dir", skillsDir, "--unexpected", "value"], unknownFlagIo),
+    EXIT.USAGE,
+  );
+  assert.match(unknownFlagIo.stderrText, /USAGE_ERROR/);
+});
+
+test("CLI initializes one isolated URL-only customer workspace without publishing", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "aomk-cli-workspace-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const workspace = join(root, "Новый заказчик");
+  const initIo = captureIo();
+
+  assert.equal(
+    await main(
+      [
+        "workspace",
+        "init",
+        "https://prospect.example/about?tracking=removed",
+        "--out",
+        workspace,
+        "--locale",
+        "ru",
+        "--json",
+      ],
+      initIo,
+    ),
+    EXIT.OK,
+  );
+  const initialized = JSON.parse(initIo.stdoutText);
+  assert.equal(initialized.slug, "prospect-example");
+  assert.equal(initialized.reused, false);
+  assert.equal(initIo.stdoutText.includes("Candidate Name"), false);
+  assert.equal(await readFile(join(workspace, ".gitignore"), "utf8").then((value) => value.includes("targets/")), true);
+  await assert.rejects(readFile(join(workspace, "dist", "prospect-example", "public", "index.html")));
+
+  const usageIo = captureIo();
+  assert.equal(
+    await main(["workspace", "init", "https://prospect.example", "--out", workspace, "--force"], usageIo),
+    EXIT.USAGE,
+  );
+  assert.match(usageIo.stderrText, /USAGE_ERROR/);
 });
 
 test("CLI init, validate, and render complete without publishing", async (t) => {

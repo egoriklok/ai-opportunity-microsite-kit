@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import {
   doctorAgentReach,
   initTarget,
+  initWorkspace,
+  installCodexSkill,
   renderTarget,
   validateTarget,
 } from "./index.mjs";
@@ -18,6 +20,8 @@ const HELP = `AI Opportunity Microsite Kit ${VERSION}
 
 Usage:
   aomk init <slug> --out <target.json> [--company <name>] [--domain <host>]
+  aomk workspace init <https-url> --out <directory> [--profile <candidate.json>] [--locale <code>] [--intent <intent>] [--policy <profile>] [--json]
+  aomk codex install --skills-dir <directory> [--force] [--json]
   aomk validate <target.json|-> [--json]
   aomk render <target.json|-> --out <directory> [--preview] [--force] [--json]
   aomk reach doctor --authorize-upstream [--json]
@@ -124,6 +128,56 @@ export async function main(argv = process.argv.slice(2), io = process) {
       return result.ok ? EXIT.OK : EXIT.UPSTREAM;
     }
 
+    if (command === "codex") {
+      const { positional, flags } = parseFlags(argv.slice(1));
+      const allowedFlags = new Set(["force", "json", "skills-dir"]);
+      const unknownFlags = Object.keys(flags).filter((name) => !allowedFlags.has(name));
+      if (
+        positional[0] !== "install" ||
+        positional.length !== 1 ||
+        !flags["skills-dir"] ||
+        unknownFlags.length > 0
+      ) {
+        throw new Error(
+          "Usage: aomk codex install --skills-dir <directory> [--force] [--json]",
+        );
+      }
+      const result = await installCodexSkill({
+        skillsDir: flags["skills-dir"],
+        force: Boolean(flags.force),
+      });
+      if (flags.json) io.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      else io.stdout.write(`Codex skill ${result.status}: ${result.skillDir}\n`);
+      return EXIT.OK;
+    }
+
+    if (command === "workspace") {
+      const { positional, flags } = parseFlags(argv.slice(1));
+      const allowedFlags = new Set(["intent", "json", "locale", "out", "policy", "profile"]);
+      const unknownFlags = Object.keys(flags).filter((name) => !allowedFlags.has(name));
+      if (
+        positional[0] !== "init" ||
+        positional.length !== 2 ||
+        !flags.out ||
+        unknownFlags.length > 0
+      ) {
+        throw new Error(
+          "Usage: aomk workspace init <https-url> --out <directory> [--profile <candidate.json>] [--locale <code>] [--intent <intent>] [--policy <profile>] [--json]",
+        );
+      }
+      const result = await initWorkspace({
+        url: positional[1],
+        outDir: flags.out,
+        profilePath: flags.profile,
+        locale: flags.locale,
+        intent: flags.intent,
+        policyProfile: flags.policy,
+      });
+      if (flags.json) io.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      else io.stdout.write(`Workspace ${result.reused ? "reused" : "initialized"}: ${result.workspaceDir}\n`);
+      return EXIT.OK;
+    }
+
     const { positional, flags } = parseFlags(argv.slice(1));
     if (command === "init") {
       if (positional.length !== 1 || !flags.out) {
@@ -196,7 +250,8 @@ export async function main(argv = process.argv.slice(2), io = process) {
       return EXIT.INVALID;
     }
     const isUsage = /^(Usage:|Unknown command|Missing value)/.test(error.message);
-    io.stderr.write(`${isUsage ? "USAGE_ERROR" : "IO_ERROR"}: ${error.message}\n`);
+    const code = isUsage ? "USAGE_ERROR" : error.code || "IO_ERROR";
+    io.stderr.write(`${code}: ${error.message}\n`);
     return isUsage ? EXIT.USAGE : EXIT.IO;
   }
 }

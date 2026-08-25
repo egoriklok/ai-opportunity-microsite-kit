@@ -1,8 +1,8 @@
 interface:
   display_name: "AI Opportunity Microsite"
-  short_description: "Build evidence-led company work samples"
+  short_description: "Turn one company URL into a local preview"
   brand_color: "#0F766E"
-  default_prompt: "Use $create-ai-opportunity-microsite to research a company and create a sourced, falsifiable proof-of-work microsite package."
+  default_prompt: "Use $create-ai-opportunity-microsite for <https://example.com> to create and complete a goal in this isolated workspace: use kit v0.2.0, public sources, and ~/.codex/aomk/candidate-profile.json only; never invent missing identity; create and validate target.json, render and inspect with --preview, report paths and gaps, and do not publish, send, contact, create external drafts, access CRM, or run Agent Reach without separate authorization."
 
 policy:
   allow_implicit_invocation: true
