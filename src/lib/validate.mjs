@@ -524,6 +524,104 @@ function addDomainDiagnostics(target, diagnostics) {
   }
 }
 
+function isExampleDotComHost(value) {
+  if (typeof value !== "string") return false;
+  const host = value.toLowerCase().replace(/\.$/, "");
+  return host === "example.com" || host.endsWith(".example.com");
+}
+
+function addCandidatePlaceholderDiagnostics(target, diagnostics) {
+  const name = target?.candidate?.name;
+  if (typeof name === "string" && name.trim().toLowerCase() === "candidate name") {
+    diagnostics.push(
+      diagnostic(
+        "warning",
+        "CANDIDATE_NAME_PLACEHOLDER",
+        "/candidate/name",
+        "Replace the Candidate Name placeholder before production rendering.",
+      ),
+    );
+  }
+
+  const bio = target?.candidate?.bio;
+  if (typeof bio === "string" && /replace this placeholder/i.test(bio)) {
+    diagnostics.push(
+      diagnostic(
+        "warning",
+        "CANDIDATE_BIO_PLACEHOLDER",
+        "/candidate/bio",
+        "Replace the candidate bio placeholder before production rendering.",
+      ),
+    );
+  }
+
+  const locationTimezone = target?.candidate?.locationTimezone;
+  if (typeof locationTimezone === "string" && /^location\b/i.test(locationTimezone.trim())) {
+    diagnostics.push(
+      diagnostic(
+        "warning",
+        "CANDIDATE_LOCATION_PLACEHOLDER",
+        "/candidate/locationTimezone",
+        "Replace the candidate location/timezone placeholder before production rendering.",
+      ),
+    );
+  }
+
+  const profileUrl = target?.candidate?.contact?.profileUrl;
+  if (typeof profileUrl === "string") {
+    try {
+      if (isExampleDotComHost(new URL(profileUrl).hostname)) {
+        diagnostics.push(
+          diagnostic(
+            "warning",
+            "CANDIDATE_PROFILE_PLACEHOLDER",
+            "/candidate/contact/profileUrl",
+            "Replace the example.com candidate profile before production rendering.",
+          ),
+        );
+      }
+    } catch {
+      // URL diagnostics are emitted separately.
+    }
+  }
+
+  const email = target?.candidate?.contact?.email;
+  if (typeof email === "string") {
+    const separator = email.lastIndexOf("@");
+    if (separator >= 0 && isExampleDotComHost(email.slice(separator + 1))) {
+      diagnostics.push(
+        diagnostic(
+          "warning",
+          "CANDIDATE_EMAIL_PLACEHOLDER",
+          "/candidate/contact/email",
+          "Replace the example.com candidate email before production rendering, or remove it.",
+        ),
+      );
+    }
+  }
+
+  for (const [index, link] of safeArray(target?.candidate?.proofLinks).entries()) {
+    let placeholder = typeof link?.label === "string" && /^replace\b/i.test(link.label.trim());
+    if (typeof link?.url === "string") {
+      try {
+        placeholder ||= isExampleDotComHost(new URL(link.url).hostname);
+      } catch {
+        // URL diagnostics are emitted separately.
+      }
+    }
+    if (placeholder) {
+      diagnostics.push(
+        diagnostic(
+          "warning",
+          "CANDIDATE_PROOF_PLACEHOLDER",
+          `/candidate/proofLinks/${index}`,
+          "Replace the candidate proof-link placeholder before production rendering.",
+        ),
+      );
+    }
+  }
+}
+
 /**
  * Validate one target document without mutating it.
  *
@@ -548,6 +646,7 @@ export function validateTarget(target, options = {}) {
     addOverclaimDiagnostics(target, options.overclaimMode ?? "warning", diagnostics);
     addHttpsDiagnostics(target, diagnostics);
     addDomainDiagnostics(target, diagnostics);
+    addCandidatePlaceholderDiagnostics(target, diagnostics);
   } else {
     // Validate options even when the document itself is not an object.
     addDateDiagnostics({}, options, diagnostics);

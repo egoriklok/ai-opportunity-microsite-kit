@@ -1,0 +1,16 @@
+# Local workspace metadata and customer-specific material
+.aomk/
+research/
+targets/
+dist/
+
+# Dependencies and local configuration
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Platform and editor files
+.DS_Store
+Thumbs.db
+*.log

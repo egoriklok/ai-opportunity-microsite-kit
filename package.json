@@ -1,6 +1,6 @@
 {
   "name": "ai-opportunity-microsite-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Agent-agnostic toolkit for evidence-led personalized AI opportunity microsites and draft-only outreach.",
   "type": "module",
   "license": "MIT",
@@ -23,6 +23,8 @@
     "docs/",
     "integrations/",
     "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "AGENTS.md",

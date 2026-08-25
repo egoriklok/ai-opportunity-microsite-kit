@@ -3,9 +3,12 @@
 Purpose: create evidence-led, personalized AI opportunity microsites from public company sources.
 
 Primary instructions: ./skill/SKILL.md
+URL-only Codex workflow and copy-ready prompts: ./skill/references/one-prompt-workflow.md and ./docs/codex-one-prompt.md
 Data contract: ./schema/target.schema.json
 Example: ./examples/nordform/target.json
-CLI: node ./src/cli.mjs <init|validate|render>
+CLI: node ./src/cli.mjs <workspace init|codex install|init|validate|render>
 Optional research capability: Agent Reach v1.5.0. Its doctor requires explicit upstream authorization: `node ./src/cli.mjs reach doctor --authorize-upstream --json`.
 
-Safety: distinguish facts from inference, use one flagship opportunity, preserve human authority, never invent ROI, keep outreach draft-only, and do not commit real target or contact data.
+Operating default: one customer per isolated workspace; package pinned to v0.2.0; scaffold with `workspace init`; public sources and local preview only; candidate identity read only from ~/.codex/aomk/candidate-profile.json; validate with --json and render with --preview --json. Create a formal goal only when explicitly requested. The scaffold command itself does not research or authorize external actions.
+
+Safety: distinguish facts from inference, use one flagship opportunity, preserve human authority, never invent identity or ROI, keep outreach draft-only, and do not commit real target or contact data. Publishing, sending, contacting, CRM access, and Agent Reach each require separate explicit authorization.

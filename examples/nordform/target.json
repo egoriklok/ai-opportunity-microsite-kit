@@ -15,13 +15,13 @@
     "bio": "I turn public evidence and operational questions into bounded AI-assisted workflows with explicit human review.",
     "locationTimezone": "Example City · UTC+0",
     "contact": {
-      "email": "egor@example.com",
-      "profileUrl": "https://example.com/cv"
+      "email": "egor@nordform.example",
+      "profileUrl": "https://nordform.example/cv"
     },
     "proofLinks": [
       {
         "label": "Illustrative work sample",
-        "url": "https://example.com/proof-of-work"
+        "url": "https://nordform.example/proof-of-work"
       }
     ]
   },

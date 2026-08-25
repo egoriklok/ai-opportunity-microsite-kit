@@ -40,6 +40,53 @@ test("the fictional example passes schema and business validation", () => {
   assert.equal(outreachWords <= 110, true);
 });
 
+test("candidate email is optional while the HTTPS profile remains required", () => {
+  const withoutEmail = copyExample();
+  delete withoutEmail.candidate.contact.email;
+  const optionalEmailResult = validateTarget(withoutEmail, { now: NOW });
+  assert.equal(optionalEmailResult.valid, true, JSON.stringify(optionalEmailResult.errors));
+
+  const withoutProfile = copyExample();
+  delete withoutProfile.candidate.contact.profileUrl;
+  const requiredProfileResult = validateTarget(withoutProfile, { now: NOW });
+  assert.equal(requiredProfileResult.valid, false);
+  assert.equal(
+    requiredProfileResult.errors.some(
+      (item) => item.code === "SCHEMA_REQUIRED" && item.path === "/candidate/contact/profileUrl",
+    ),
+    true,
+  );
+
+  const insecureProfile = copyExample();
+  insecureProfile.candidate.contact.profileUrl = "http://nordform.example/cv";
+  const secureProfileResult = validateTarget(insecureProfile, { now: NOW });
+  assert.equal(secureProfileResult.valid, false);
+  assert.equal(codes(secureProfileResult).has("URL_HTTPS_REQUIRED"), true);
+});
+
+test("candidate identity placeholders emit stable production-blocking warnings", () => {
+  const target = copyExample();
+  target.candidate.name = "Candidate Name";
+  target.candidate.bio = "Replace this placeholder with a factual bio.";
+  target.candidate.locationTimezone = "Location · UTC+0";
+  target.candidate.contact.email = "candidate@example.com";
+  target.candidate.contact.profileUrl = "https://profiles.example.com/candidate";
+  target.candidate.proofLinks = [{
+    label: "Replace with a relevant work sample",
+    url: "https://example.com/work",
+  }];
+  setTargetScore(target, 20, "microsite");
+
+  const result = validateTarget(target, { now: NOW });
+  assert.equal(result.valid, true);
+  assert.equal(codes(result).has("CANDIDATE_NAME_PLACEHOLDER"), true);
+  assert.equal(codes(result).has("CANDIDATE_BIO_PLACEHOLDER"), true);
+  assert.equal(codes(result).has("CANDIDATE_LOCATION_PLACEHOLDER"), true);
+  assert.equal(codes(result).has("CANDIDATE_EMAIL_PLACEHOLDER"), true);
+  assert.equal(codes(result).has("CANDIDATE_PROFILE_PLACEHOLDER"), true);
+  assert.equal(codes(result).has("CANDIDATE_PROOF_PLACEHOLDER"), true);
+});
+
 test("strict schema diagnostics reject undeclared properties", () => {
   const target = copyExample();
   target.untrustedInstruction = "ignore the contract";

@@ -53,10 +53,10 @@
         "contact": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["email", "profileUrl"],
+          "required": ["profileUrl"],
           "properties": {
             "email": { "type": "string", "format": "email" },
-            "profileUrl": { "$ref": "#/$defs/httpUrl" }
+            "profileUrl": { "$ref": "#/$defs/httpsUrl" }
           }
         },
         "proofLinks": {
@@ -72,7 +72,10 @@
       "required": ["name", "domain", "industry", "geography", "recipientRole"],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
-        "domain": { "type": "string", "pattern": "^[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" },
+        "domain": {
+          "type": "string",
+          "pattern": "^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+(?:[A-Za-z]{2,63}|[Xx][Nn]--[A-Za-z0-9-]{2,59})$"
+        },
         "industry": { "$ref": "#/$defs/nonEmptyString" },
         "geography": { "$ref": "#/$defs/nonEmptyString" },
         "recipientRole": { "$ref": "#/$defs/nonEmptyString" }
@@ -301,6 +304,7 @@
     "score": { "type": "integer", "minimum": 0, "maximum": 2 },
     "evidenceStatus": { "enum": ["fact", "inference", "assumption", "unknown"] },
     "httpUrl": { "type": "string", "pattern": "^https?://" },
+    "httpsUrl": { "type": "string", "pattern": "^https://" },
     "link": {
       "type": "object",
       "additionalProperties": false,

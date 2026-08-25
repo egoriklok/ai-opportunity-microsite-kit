@@ -11,6 +11,8 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 
+import { validateTarget } from "./validate.mjs";
+
 const PRODUCT_ID = "ai-opportunity-microsite-kit";
 const OUTPUT_VERSION = 1;
 const MARKER_FILE = ".aomk-output.json";
@@ -20,6 +22,38 @@ function renderError(message, code) {
   const error = new Error(message);
   error.code = code;
   return error;
+}
+
+function mergeDiagnostics(...groups) {
+  const seen = new Set();
+  const merged = [];
+  for (const diagnostic of groups.flatMap((group) => Array.isArray(group) ? group : [])) {
+    const key = JSON.stringify([
+      diagnostic?.severity,
+      diagnostic?.code,
+      diagnostic?.path,
+      diagnostic?.message,
+    ]);
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(diagnostic);
+    }
+  }
+  return merged;
+}
+
+function effectiveValidation(target, supplied, now) {
+  const intrinsic = validateTarget(target, { now: now ?? new Date() });
+  if (supplied === undefined) return intrinsic;
+  const errors = mergeDiagnostics(intrinsic.errors, supplied?.errors);
+  const warnings = mergeDiagnostics(intrinsic.warnings, supplied?.warnings);
+  return {
+    valid: intrinsic.valid === true && supplied?.valid === true && errors.length === 0,
+    errors,
+    warnings,
+    diagnostics: mergeDiagnostics(errors, warnings, intrinsic.diagnostics, supplied?.diagnostics),
+    value: intrinsic.value,
+  };
 }
 
 function requiredString(value, field) {
@@ -116,6 +150,8 @@ function toPublicView(target) {
     );
   }
 
+  const candidateEmail = target.candidate?.contact?.email;
+
   return {
     researchDate: requiredString(target.researchDate, "researchDate"),
     locale: requiredArray(target.campaign?.locales, "campaign.locales")[0] || "en",
@@ -133,7 +169,10 @@ function toPublicView(target) {
         target.candidate?.locationTimezone,
         "candidate.locationTimezone",
       ),
-      email: requiredString(target.candidate?.contact?.email, "candidate.contact.email"),
+      email:
+        candidateEmail === undefined
+          ? undefined
+          : requiredString(candidateEmail, "candidate.contact.email"),
       profileUrl: requiredString(
         target.candidate?.contact?.profileUrl,
         "candidate.contact.profileUrl",
@@ -222,7 +261,7 @@ function list(items, renderItem, className = "") {
 
 function renderPublicHtml(view, preview = false) {
   const profileUrl = safeHttpsUrl(view.candidate.profileUrl, "candidate.contact.profileUrl");
-  const emailUrl = safeMailto(view.candidate.email);
+  const emailUrl = view.candidate.email === undefined ? undefined : safeMailto(view.candidate.email);
   const proofLinks = view.candidate.proofLinks.map((link, index) => ({
     label: link.label,
     url: safeHttpsUrl(link.url, `candidate.proofLinks[${index}].url`),
@@ -232,6 +271,9 @@ function renderPublicHtml(view, preview = false) {
     url: safeHttpsUrl(source.url, `sources[${index}].url`),
   }));
   const lang = /^[a-z]{2}(?:-[A-Z]{2})?$/.test(view.locale) ? view.locale : "en";
+  const contactCta = emailUrl
+    ? `<a href="${escapeHtml(emailUrl)}">Email ${escapeHtml(view.candidate.name)}</a>`
+    : `<a href="${escapeHtml(profileUrl)}" rel="noopener noreferrer">Contact ${escapeHtml(view.candidate.name)} via profile</a>`;
 
   return `<!doctype html>
 <html lang="${escapeHtml(lang)}">
@@ -369,7 +411,7 @@ function renderPublicHtml(view, preview = false) {
     <div class="cta">
       <h2>A small next step</h2>
       <p>${escapeHtml(view.site.cta)}</p>
-      <p><a href="${escapeHtml(emailUrl)}">Email ${escapeHtml(view.candidate.name)}</a></p>
+      <p>${contactCta}</p>
     </div>
   </section>
 
@@ -532,7 +574,7 @@ async function writeTree(root, files) {
  * Render a validated target into a public microsite and private operator files.
  *
  * @param {object} target
- * @param {{outDir: string, force?: boolean, preview?: boolean, slug?: string}} options
+ * @param {{outDir: string, force?: boolean, preview?: boolean, slug?: string, validation?: object, now?: Date|string|number}} options
  * @returns {Promise<{outDir: string, slug: string, files: string[]}>}
  */
 export async function renderTarget(target, options = {}) {
@@ -542,6 +584,7 @@ export async function renderTarget(target, options = {}) {
   if (typeof options.outDir !== "string" || options.outDir.trim() === "") {
     throw renderError("Cannot render: options.outDir is required.", "AOMK_INVALID_OUTPUT");
   }
+  const validation = effectiveValidation(target, options.validation, options.now);
   if (target?.targetScreen?.decision !== "microsite" && options.preview !== true) {
     throw renderError(
       "Target is not approved for a public microsite. Use preview mode only for local review.",
@@ -549,11 +592,10 @@ export async function renderTarget(target, options = {}) {
     );
   }
   if (
-    options.validation &&
-    (options.validation.valid !== true ||
+    validation.valid !== true ||
       (!options.preview &&
-        Array.isArray(options.validation.warnings) &&
-        options.validation.warnings.length > 0))
+        Array.isArray(validation.warnings) &&
+        validation.warnings.length > 0)
   ) {
     throw renderError(
       "Validated target has blocking errors or warnings. Use preview mode only for warning review.",
@@ -588,7 +630,7 @@ export async function renderTarget(target, options = {}) {
     ["private/call-brief.txt", renderCallBrief(target)],
     [
       "private/qa-report.json",
-      renderQaReport(target, slug, options.validation, options.preview === true),
+      renderQaReport(target, slug, validation, options.preview === true),
     ],
     [MARKER_FILE, markerContent(slug)],
   ];

@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,7 +45,69 @@ try {
   run(process.execPath, [cli, "render", target, "--out", output, "--preview", "--json"], { cwd: temporary });
   const html = await readFile(join(output, "public", "index.html"), "utf8");
   if (!html.includes("noindex, nofollow, noarchive")) throw new Error("Pack smoke output lacks robots boundary.");
-  console.log("Package smoke passed: pack, install, init, validate, and render.");
+
+  const profile = join(temporary, "candidate.private.json");
+  await writeFile(
+    profile,
+    `${JSON.stringify({
+      candidate: {
+        name: "Package Consumer",
+        role: "AI workflow operator",
+        bio: "Creates bounded evidence-led work samples with explicit human review.",
+        locationTimezone: "UTC+0",
+        contact: { profileUrl: "https://profile.example/consumer" },
+        proofLinks: [{ label: "Selected work", url: "https://profile.example/work" }],
+      },
+    })}\n`,
+  );
+  const customer = join(temporary, "Codex Projects", "Новый заказчик");
+  const workspaceResult = JSON.parse(
+    run(
+      process.execPath,
+      [
+        cli,
+        "workspace",
+        "init",
+        "https://prospect.example/about",
+        "--out",
+        customer,
+        "--profile",
+        profile,
+        "--json",
+      ],
+      { cwd: temporary },
+    ),
+  );
+  run(process.execPath, [cli, "validate", workspaceResult.targetPath, "--json"], {
+    cwd: customer,
+  });
+  const customerOutput = join(customer, "dist", workspaceResult.slug);
+  run(
+    process.execPath,
+    [cli, "render", workspaceResult.targetPath, "--out", customerOutput, "--preview", "--json"],
+    { cwd: customer },
+  );
+  const preview = await readFile(join(customerOutput, "public", "index.html"), "utf8");
+  if (!preview.includes("not approved for publication")) {
+    throw new Error("Pack smoke customer output lacks the visible preview boundary.");
+  }
+
+  const fakeSkills = join(temporary, "Fake Codex", "skills");
+  const skillInstall = JSON.parse(
+    run(
+      process.execPath,
+      [cli, "codex", "install", "--skills-dir", fakeSkills, "--json"],
+      { cwd: temporary },
+    ),
+  );
+  const installedSkill = await readFile(join(skillInstall.skillDir, "SKILL.md"), "utf8");
+  if (!installedSkill.includes("Treat one customer as one workspace")) {
+    throw new Error("Pack smoke installed skill lacks the URL-only contract.");
+  }
+
+  console.log(
+    "Package smoke passed: pack, install, URL-only workspace, validate, preview render, and Codex skill install.",
+  );
 } finally {
   const safeTempRoot = resolve(tmpdir());
   if (resolve(temporary).startsWith(`${safeTempRoot}\\`) || resolve(temporary).startsWith(`${safeTempRoot}/`)) {

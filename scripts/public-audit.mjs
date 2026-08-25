@@ -14,7 +14,7 @@ const forbiddenText = [
   ["private project name", decode("U1RPQ0g=")],
   ["private project domain", decode("c3RvY2gtY25j")],
   ["private hosting domain", decode("Y2hhdGdwdC5zaXRl")],
-  ["Windows user path", decode("QzpcXFVzZXJzXFw=")],
+  ["Windows user path", decode("QzpcVXNlcnNc")],
   ["WSL user path", decode("L2hvbWUvZWdvcmk=")],
   ["private platform project id", decode("YXBwZ3Byal8=")],
 ];
@@ -40,40 +40,49 @@ async function walk(directory, files = []) {
   return files;
 }
 
-const findings = [];
-for (const file of await walk(root)) {
-  const rel = relative(root, file).replaceAll("\\", "/");
-  for (const [label, pattern] of forbiddenNames) {
-    if (pattern.test(rel)) findings.push({ file: rel, rule: label });
-  }
-  if (resolve(file) === self || !textExtensions.has(extname(file).toLowerCase())) continue;
-  const stats = await lstat(file);
-  if (stats.size > 2 * 1024 * 1024) {
-    findings.push({ file: rel, rule: "unexpected large text file" });
-    continue;
-  }
-  const buffer = await readFile(file);
-  if (buffer.includes(0)) continue;
-  const text = buffer.toString("utf8");
-  for (const [label, needle] of forbiddenText) {
-    if (text.toLowerCase().includes(needle.toLowerCase())) findings.push({ file: rel, rule: label });
-  }
-  for (const [label, pattern] of secretPatterns) {
-    pattern.lastIndex = 0;
-    if (pattern.test(text)) findings.push({ file: rel, rule: label });
-  }
-  if (extname(file).toLowerCase() === ".json") {
-    try {
-      JSON.parse(text);
-    } catch {
-      findings.push({ file: rel, rule: "invalid JSON" });
+export async function auditPublicTree(scanRoot = root) {
+  const resolvedRoot = resolve(scanRoot);
+  const findings = [];
+  for (const file of await walk(resolvedRoot)) {
+    const rel = relative(resolvedRoot, file).replaceAll("\\", "/");
+    for (const [label, pattern] of forbiddenNames) {
+      pattern.lastIndex = 0;
+      if (pattern.test(rel)) findings.push({ file: rel, rule: label });
+    }
+    if (resolve(file) === self || !textExtensions.has(extname(file).toLowerCase())) continue;
+    const stats = await lstat(file);
+    if (stats.size > 2 * 1024 * 1024) {
+      findings.push({ file: rel, rule: "unexpected large text file" });
+      continue;
+    }
+    const buffer = await readFile(file);
+    if (buffer.includes(0)) continue;
+    const text = buffer.toString("utf8");
+    for (const [label, needle] of forbiddenText) {
+      if (text.toLowerCase().includes(needle.toLowerCase())) findings.push({ file: rel, rule: label });
+    }
+    for (const [label, pattern] of secretPatterns) {
+      pattern.lastIndex = 0;
+      if (pattern.test(text)) findings.push({ file: rel, rule: label });
+    }
+    if (extname(file).toLowerCase() === ".json") {
+      try {
+        JSON.parse(text);
+      } catch {
+        findings.push({ file: rel, rule: "invalid JSON" });
+      }
     }
   }
+  return findings;
 }
 
-if (findings.length > 0) {
-  for (const finding of findings) console.error(`PUBLIC_AUDIT ${finding.rule}: ${finding.file}`);
-  process.exitCode = 1;
-} else {
-  console.log("Public audit passed: no forbidden project data or obvious secrets found.");
+const isDirect = process.argv[1] && resolve(process.argv[1]) === self;
+if (isDirect) {
+  const findings = await auditPublicTree();
+  if (findings.length > 0) {
+    for (const finding of findings) console.error(`PUBLIC_AUDIT ${finding.rule}: ${finding.file}`);
+    process.exitCode = 1;
+  } else {
+    console.log("Public audit passed: no forbidden project data or obvious secrets found.");
+  }
 }
