@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/egoriklok/ai-opportunity-microsite-kit/blob/main/schema/target.schema.json",
+  "title": "AI Opportunity Microsite Target",
+  "description": "Portable evidence, opportunity, candidate, and artifact contract for one company target.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "researchDate",
+    "campaign",
+    "candidate",
+    "company",
+    "targetScreen",
+    "sources",
+    "signals",
+    "opportunities",
+    "selectedOpportunityId",
+    "pilot",
+    "site",
+    "privateArtifacts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "researchDate": { "type": "string", "format": "date" },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyProfile", "intent", "targetRole", "locales", "ctaMinutes", "noindex"],
+      "properties": {
+        "policyProfile": { "enum": ["employment-cold-v1", "collaboration-cold-v1", "custom-v1"] },
+        "intent": { "enum": ["employment", "collaboration"] },
+        "targetRole": { "$ref": "#/$defs/nonEmptyString" },
+        "locales": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$" }
+        },
+        "ctaMinutes": { "type": "integer", "minimum": 5, "maximum": 60 },
+        "noindex": { "const": true }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "role", "bio", "locationTimezone", "contact", "proofLinks"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nonEmptyString" },
+        "role": { "$ref": "#/$defs/nonEmptyString" },
+        "bio": { "$ref": "#/$defs/nonEmptyString" },
+        "locationTimezone": { "$ref": "#/$defs/nonEmptyString" },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["email", "profileUrl"],
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "profileUrl": { "$ref": "#/$defs/httpUrl" }
+          }
+        },
+        "proofLinks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/link" }
+        }
+      }
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "domain", "industry", "geography", "recipientRole"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nonEmptyString" },
+        "domain": { "type": "string", "pattern": "^[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" },
+        "industry": { "$ref": "#/$defs/nonEmptyString" },
+        "geography": { "$ref": "#/$defs/nonEmptyString" },
+        "recipientRole": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "targetScreen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scores", "total", "decision"],
+      "properties": {
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recentTrigger",
+            "visibleWorkflow",
+            "measurableEffect",
+            "qualitySources",
+            "humanOwnedMechanism",
+            "publicArtifact",
+            "candidateFit",
+            "recipientRole",
+            "manageableRisk",
+            "companySpecificity"
+          ],
+          "properties": {
+            "recentTrigger": { "$ref": "#/$defs/score" },
+            "visibleWorkflow": { "$ref": "#/$defs/score" },
+            "measurableEffect": { "$ref": "#/$defs/score" },
+            "qualitySources": { "$ref": "#/$defs/score" },
+            "humanOwnedMechanism": { "$ref": "#/$defs/score" },
+            "publicArtifact": { "$ref": "#/$defs/score" },
+            "candidateFit": { "$ref": "#/$defs/score" },
+            "recipientRole": { "$ref": "#/$defs/score" },
+            "manageableRisk": { "$ref": "#/$defs/score" },
+            "companySpecificity": { "$ref": "#/$defs/score" }
+          }
+        },
+        "total": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "decision": { "enum": ["microsite", "brief", "research-or-stop"] }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "title", "url", "accessedAt", "supports"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "type": { "$ref": "#/$defs/nonEmptyString" },
+          "title": { "$ref": "#/$defs/nonEmptyString" },
+          "url": { "$ref": "#/$defs/httpUrl" },
+          "accessedAt": { "type": "string", "format": "date" },
+          "supports": { "$ref": "#/$defs/nonEmptyString" }
+        }
+      }
+    },
+    "signals": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "observation", "status", "sourceRefs"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "observation": { "$ref": "#/$defs/nonEmptyString" },
+          "status": { "$ref": "#/$defs/evidenceStatus" },
+          "sourceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          }
+        }
+      }
+    },
+    "opportunities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "observedSignal",
+          "hypothesis",
+          "status",
+          "whyItMayBeWrong",
+          "missingEvidence",
+          "aiPrepares",
+          "humanDecides",
+          "practicalResult",
+          "metric",
+          "stopRule",
+          "evidenceRefs",
+          "score"
+        ],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "title": { "$ref": "#/$defs/nonEmptyString" },
+          "observedSignal": { "$ref": "#/$defs/id" },
+          "hypothesis": { "$ref": "#/$defs/nonEmptyString" },
+          "status": { "$ref": "#/$defs/evidenceStatus" },
+          "whyItMayBeWrong": { "$ref": "#/$defs/nonEmptyString" },
+          "missingEvidence": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": { "$ref": "#/$defs/nonEmptyString" }
+          },
+          "aiPrepares": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/nonEmptyString" }
+          },
+          "humanDecides": { "$ref": "#/$defs/nonEmptyString" },
+          "practicalResult": { "$ref": "#/$defs/nonEmptyString" },
+          "metric": { "$ref": "#/$defs/nonEmptyString" },
+          "stopRule": { "$ref": "#/$defs/nonEmptyString" },
+          "evidenceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          },
+          "score": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evidence", "strategicProximity", "measurable", "feasible30Days", "candidateFit", "risk"],
+            "properties": {
+              "evidence": { "$ref": "#/$defs/score" },
+              "strategicProximity": { "$ref": "#/$defs/score" },
+              "measurable": { "$ref": "#/$defs/score" },
+              "feasible30Days": { "$ref": "#/$defs/score" },
+              "candidateFit": { "$ref": "#/$defs/score" },
+              "risk": { "$ref": "#/$defs/score" }
+            }
+          }
+        }
+      }
+    },
+    "selectedOpportunityId": { "$ref": "#/$defs/id" },
+    "pilot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["durationDays", "sampleMin", "sampleMax", "steps", "decision"],
+      "properties": {
+        "durationDays": { "type": "integer", "minimum": 7, "maximum": 90 },
+        "sampleMin": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "sampleMax": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "steps": {
+          "type": "array",
+          "minItems": 4,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "decision": {
+          "type": "array",
+          "const": ["KEEP", "CHANGE", "STOP"]
+        }
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "disclosure", "cta", "unknowns", "artifact"],
+      "properties": {
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "disclosure": { "$ref": "#/$defs/nonEmptyString" },
+        "cta": { "$ref": "#/$defs/nonEmptyString" },
+        "unknowns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "label", "fields"],
+          "properties": {
+            "title": { "$ref": "#/$defs/nonEmptyString" },
+            "label": { "$ref": "#/$defs/nonEmptyString" },
+            "fields": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "value"],
+                "properties": {
+                  "name": { "$ref": "#/$defs/nonEmptyString" },
+                  "value": { "$ref": "#/$defs/nonEmptyString" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "privateArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outreach"],
+      "properties": {
+        "outreach": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["subject", "body", "optOut"],
+          "properties": {
+            "subject": { "$ref": "#/$defs/nonEmptyString" },
+            "body": { "$ref": "#/$defs/nonEmptyString" },
+            "optOut": { "type": "string", "minLength": 1, "maxLength": 200 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_-]*$" },
+    "score": { "type": "integer", "minimum": 0, "maximum": 2 },
+    "evidenceStatus": { "enum": ["fact", "inference", "assumption", "unknown"] },
+    "httpUrl": { "type": "string", "pattern": "^https?://" },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/nonEmptyString" },
+        "url": { "$ref": "#/$defs/httpUrl" }
+      }
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "1.0.0",
+  "researchDate": "2026-08-25",
+  "campaign": {
+    "policyProfile": "employment-cold-v1",
+    "intent": "employment",
+    "targetRole": "AI Commercial Operations",
+    "locales": ["en"],
+    "ctaMinutes": 15,
+    "noindex": true
+  },
+  "candidate": {
+    "name": "Egor Example",
+    "role": "AI commercial workflow operator",
+    "bio": "I turn public evidence and operational questions into bounded AI-assisted workflows with explicit human review.",
+    "locationTimezone": "Example City · UTC+0",
+    "contact": {
+      "email": "egor@example.com",
+      "profileUrl": "https://example.com/cv"
+    },
+    "proofLinks": [
+      {
+        "label": "Illustrative work sample",
+        "url": "https://example.com/proof-of-work"
+      }
+    ]
+  },
+  "company": {
+    "name": "NordForm Machines",
+    "domain": "example.com",
+    "industry": "industrial machinery",
+    "geography": "example market",
+    "recipientRole": "Commercial Director"
+  },
+  "targetScreen": {
+    "scores": {
+      "recentTrigger": 1,
+      "visibleWorkflow": 2,
+      "measurableEffect": 2,
+      "qualitySources": 2,
+      "humanOwnedMechanism": 2,
+      "publicArtifact": 2,
+      "candidateFit": 2,
+      "recipientRole": 2,
+      "manageableRisk": 2,
+      "companySpecificity": 1
+    },
+    "total": 18,
+    "decision": "microsite"
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "type": "official-website",
+      "title": "Illustrative product catalogue",
+      "url": "https://example.com/catalogue",
+      "accessedAt": "2026-08-25",
+      "supports": "The fictional company presents configurable machinery. This does not prove how it handles incoming requests."
+    },
+    {
+      "id": "S2",
+      "type": "official-website",
+      "title": "Illustrative services page",
+      "url": "https://example.com/services",
+      "accessedAt": "2026-08-25",
+      "supports": "The fictional company describes engineering support. Internal handoffs and cycle times remain unknown."
+    },
+    {
+      "id": "S3",
+      "type": "official-careers",
+      "title": "Illustrative commercial role",
+      "url": "https://example.com/careers",
+      "accessedAt": "2026-08-25",
+      "supports": "The fictional role suggests commercial and technical coordination. Workload and bottlenecks remain unknown."
+    }
+  ],
+  "signals": [
+    {
+      "id": "G1",
+      "observation": "The fictional public material combines configurable products with engineering support.",
+      "status": "fact",
+      "sourceRefs": ["S1", "S2", "S3"]
+    },
+    {
+      "id": "G2",
+      "observation": "The fictional services page describes engineering support around the equipment lifecycle.",
+      "status": "fact",
+      "sourceRefs": ["S2"]
+    },
+    {
+      "id": "G3",
+      "observation": "The fictional careers material describes coordination between commercial and technical work.",
+      "status": "fact",
+      "sourceRefs": ["S3"]
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "O1",
+      "title": "Initial RFQ qualification brief",
+      "observedSignal": "G1",
+      "hypothesis": "A structured first-pass brief may reduce repeated reading before engineering review.",
+      "status": "inference",
+      "whyItMayBeWrong": "The current process may already be structured, low-volume, or constrained by engineering capacity rather than request preparation.",
+      "missingEvidence": [
+        "Current RFQ volume",
+        "Median time to first technical response",
+        "Fields most often missing",
+        "Acceptable engineer correction rate"
+      ],
+      "aiPrepares": [
+        "Extracts part, material, dimensions, tolerance, volume and timing",
+        "Marks missing or contradictory inputs",
+        "Creates a review brief and clarification questions"
+      ],
+      "humanDecides": "An engineer approves the interpretation, selection and every technical commitment.",
+      "practicalResult": "A consistent engineering-ready brief instead of repeated first-pass reading.",
+      "metric": "Median time to first technically substantive response, paired with input completeness.",
+      "stopRule": "Stop if cycle time does not improve or engineer corrections exceed the agreed threshold.",
+      "evidenceRefs": ["S1", "S2", "S3"],
+      "score": {
+        "evidence": 1,
+        "strategicProximity": 2,
+        "measurable": 2,
+        "feasible30Days": 2,
+        "candidateFit": 2,
+        "risk": 1
+      }
+    }
+  ],
+  "selectedOpportunityId": "O1",
+  "pilot": {
+    "durationDays": 30,
+    "sampleMin": 3,
+    "sampleMax": 5,
+    "steps": [
+      "Record the current baseline",
+      "Select three to five anonymized examples",
+      "Build a bounded preparation prototype",
+      "Run expert review and measure corrections",
+      "Decide using the agreed metric"
+    ],
+    "decision": ["KEEP", "CHANGE", "STOP"]
+  },
+  "site": {
+    "title": "A testable RFQ preparation hypothesis for NordForm Machines",
+    "disclosure": "Independent work sample based only on fictional public-source examples. It is not an official NordForm Machines analysis.",
+    "cta": "Would 15 minutes with the process owner be useful to confirm or disprove three assumptions? No data preparation is needed.",
+    "unknowns": [
+      "Actual RFQ volume and channel mix",
+      "Current system and handoff design",
+      "Engineering correction baseline",
+      "Data-handling constraints"
+    ],
+    "artifact": {
+      "title": "Illustrative request qualification card",
+      "label": "Illustrative prototype — not company data",
+      "fields": [
+        { "name": "Part and material", "value": "Missing — request clarification" },
+        { "name": "Dimensions and tolerance", "value": "Partially supplied" },
+        { "name": "Volume and timing", "value": "Batch size known; deadline missing" },
+        { "name": "Engineering decision", "value": "Human review required" }
+      ]
+    }
+  },
+  "privateArtifacts": {
+    "outreach": {
+      "subject": "NordForm Machines: one testable RFQ workflow hypothesis",
+      "body": "Hello Commercial Director,\n\nThe fictional NordForm material combines configurable machinery with engineering support. That does not prove an internal problem, but it suggests one testable question: could a structured first-pass RFQ brief reduce repeated reading before engineering review?\n\nI prepared a short, sourced work sample that shows the hypothesis, its limits, human decision points, and a 30-day validation design without invented ROI. I am exploring AI commercial-operations roles where I can own this kind of work.\n\nWould 15 minutes be useful to confirm or disprove three assumptions?\n\nEgor Example",
+      "optOut": "If this is not relevant, let me know and I will not follow up."
+    }
+  }
+}

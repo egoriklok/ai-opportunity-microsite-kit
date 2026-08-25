@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "researchDate": "2000-01-01",
+  "campaign": {
+    "policyProfile": "employment-cold-v1",
+    "intent": "employment",
+    "targetRole": "AI workflow operator",
+    "locales": ["en"],
+    "ctaMinutes": 15,
+    "noindex": true
+  },
+  "candidate": {
+    "name": "Candidate Name",
+    "role": "AI workflow operator",
+    "bio": "Replace this placeholder with a concise, evidence-based professional summary.",
+    "locationTimezone": "Location · UTC+0",
+    "contact": {
+      "email": "candidate@example.com",
+      "profileUrl": "https://example.com/profile"
+    },
+    "proofLinks": [
+      {
+        "label": "Replace with a relevant work sample",
+        "url": "https://example.com/work-sample"
+      }
+    ]
+  },
+  "company": {
+    "name": "Example Company",
+    "domain": "example.com",
+    "industry": "replace with verified industry",
+    "geography": "replace with verified geography",
+    "recipientRole": "Decision Owner"
+  },
+  "targetScreen": {
+    "scores": {
+      "recentTrigger": 0,
+      "visibleWorkflow": 0,
+      "measurableEffect": 0,
+      "qualitySources": 0,
+      "humanOwnedMechanism": 0,
+      "publicArtifact": 0,
+      "candidateFit": 0,
+      "recipientRole": 0,
+      "manageableRisk": 0,
+      "companySpecificity": 0
+    },
+    "total": 0,
+    "decision": "research-or-stop"
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "type": "official-website",
+      "title": "Placeholder source one",
+      "url": "https://example.com/",
+      "accessedAt": "2000-01-01",
+      "supports": "Placeholder only: replace with a conservative statement supported by this source."
+    },
+    {
+      "id": "S2",
+      "type": "official-website",
+      "title": "Placeholder source two",
+      "url": "https://example.com/services",
+      "accessedAt": "2000-01-01",
+      "supports": "Placeholder only: replace with a conservative statement supported by this source."
+    },
+    {
+      "id": "S3",
+      "type": "official-website",
+      "title": "Placeholder source three",
+      "url": "https://example.com/careers",
+      "accessedAt": "2000-01-01",
+      "supports": "Placeholder only: replace with a conservative statement supported by this source."
+    }
+  ],
+  "signals": [
+    {
+      "id": "G1",
+      "observation": "Unknown until the first source is reviewed.",
+      "status": "unknown",
+      "sourceRefs": ["S1"]
+    },
+    {
+      "id": "G2",
+      "observation": "Unknown until the second source is reviewed.",
+      "status": "unknown",
+      "sourceRefs": ["S2"]
+    },
+    {
+      "id": "G3",
+      "observation": "Unknown until the third source is reviewed.",
+      "status": "unknown",
+      "sourceRefs": ["S3"]
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "O1",
+      "title": "Placeholder workflow hypothesis",
+      "observedSignal": "G1",
+      "hypothesis": "A bounded workflow improvement may be testable after the missing evidence is collected.",
+      "status": "unknown",
+      "whyItMayBeWrong": "No company-specific workflow evidence has been collected yet.",
+      "missingEvidence": [
+        "Current workflow and owner",
+        "Baseline volume and timing",
+        "Quality and risk constraints"
+      ],
+      "aiPrepares": [
+        "A draft based only on approved, cited inputs"
+      ],
+      "humanDecides": "A named process owner reviews every consequential conclusion.",
+      "practicalResult": "A reviewable artifact, if the evidence supports building one.",
+      "metric": "Define one baseline and one paired outcome measure before the test.",
+      "stopRule": "Stop if evidence, quality, or process-owner support is insufficient.",
+      "evidenceRefs": ["S1"],
+      "score": {
+        "evidence": 0,
+        "strategicProximity": 0,
+        "measurable": 0,
+        "feasible30Days": 0,
+        "candidateFit": 0,
+        "risk": 2
+      }
+    }
+  ],
+  "selectedOpportunityId": "O1",
+  "pilot": {
+    "durationDays": 30,
+    "sampleMin": 3,
+    "sampleMax": 5,
+    "steps": [
+      "Replace placeholders with cited evidence",
+      "Record the current baseline",
+      "Build the smallest reviewable preparation artifact",
+      "Run human review and record corrections",
+      "Choose KEEP, CHANGE, or STOP"
+    ],
+    "decision": ["KEEP", "CHANGE", "STOP"]
+  },
+  "site": {
+    "title": "A testable AI workflow hypothesis for Example Company",
+    "disclosure": "Independent draft built from placeholder data. Do not publish until every public claim has a cited source.",
+    "cta": "Would 15 minutes with the process owner be useful to confirm or disprove three assumptions? No data preparation is needed.",
+    "unknowns": [
+      "Current workflow",
+      "Baseline performance",
+      "Process owner",
+      "Data-handling constraints"
+    ],
+    "artifact": {
+      "title": "Illustrative review card",
+      "label": "Placeholder — not company data",
+      "fields": [
+        {
+          "name": "Evidence",
+          "value": "Missing — replace before publication"
+        },
+        {
+          "name": "Human decision",
+          "value": "Required"
+        }
+      ]
+    }
+  },
+  "privateArtifacts": {
+    "outreach": {
+      "subject": "Example Company: one testable workflow question",
+      "body": "Hello Decision Owner,\n\nI am preparing a small, evidence-led work sample for Example Company. The current file contains placeholders, not conclusions about your business. Before any outreach, I will replace them with dated public sources, mark each inference, and define one workflow question that a process owner can confirm or reject.\n\nThe final page will show the evidence, unknowns, human decision points, metric, and stop rule without invented ROI. I am exploring AI workflow roles where I can own this careful preparation.\n\nWould 15 minutes be useful once the evidence is complete?\n\nCandidate Name",
+      "optOut": "If this is not relevant, reply no and I will not follow up."
+    }
+  }
+}

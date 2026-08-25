@@ -1,0 +1,7 @@
+{
+  "upstream": "https://github.com/Panniantong/Agent-Reach",
+  "version": "1.5.0",
+  "commit": "f65526cbaaad3879473acc1ba6dbefd195caf2be",
+  "doctorContract": 1,
+  "python": ">=3.10"
+}

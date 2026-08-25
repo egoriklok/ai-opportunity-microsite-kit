@@ -1,0 +1,60 @@
+{
+  "name": "ai-opportunity-microsite-kit",
+  "version": "0.1.0",
+  "description": "Agent-agnostic toolkit for evidence-led personalized AI opportunity microsites and draft-only outreach.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./schema": "./schema/target.schema.json"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "aomk": "./src/cli.mjs"
+  },
+  "files": [
+    "src/",
+    "schema/",
+    "skill/",
+    "templates/",
+    "examples/",
+    "docs/",
+    "integrations/",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "llms.txt"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node ./scripts/public-audit.mjs && node ./scripts/docs-check.mjs && node ./src/cli.mjs validate ./examples/nordform/target.json && node --test",
+    "example": "node ./src/cli.mjs render ./examples/nordform/target.json --out ./dist/nordform",
+    "pack:check": "node ./scripts/smoke-pack.mjs"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "keywords": [
+    "ai-agents",
+    "microsite",
+    "proof-of-work",
+    "sales-research",
+    "job-search",
+    "json-schema",
+    "agent-reach"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/egoriklok/ai-opportunity-microsite-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/egoriklok/ai-opportunity-microsite-kit/issues"
+  },
+  "homepage": "https://github.com/egoriklok/ai-opportunity-microsite-kit#readme"
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.log
+targets/
+!examples/
+.*.aomk-tmp-*/
+.*.aomk-backup-*/
+*.tgz

@@ -1,0 +1,11 @@
+# AI Opportunity Microsite Kit
+
+Purpose: create evidence-led, personalized AI opportunity microsites from public company sources.
+
+Primary instructions: ./skill/SKILL.md
+Data contract: ./schema/target.schema.json
+Example: ./examples/nordform/target.json
+CLI: node ./src/cli.mjs <init|validate|render>
+Optional research capability: Agent Reach v1.5.0. Its doctor requires explicit upstream authorization: `node ./src/cli.mjs reach doctor --authorize-upstream --json`.
+
+Safety: distinguish facts from inference, use one flagship opportunity, preserve human authority, never invent ROI, keep outreach draft-only, and do not commit real target or contact data.

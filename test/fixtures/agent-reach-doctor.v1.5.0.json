@@ -1,0 +1,18 @@
+{
+  "web": {
+    "status": "ok",
+    "name": "Web reader",
+    "message": "local path and diagnostic details must be removed",
+    "tier": 0,
+    "backends": ["Jina Reader"],
+    "active_backend": "Jina Reader"
+  },
+  "github": {
+    "status": "ok",
+    "name": "GitHub",
+    "message": "authenticated status details must be removed",
+    "tier": 0,
+    "backends": ["gh CLI"],
+    "active_backend": "gh CLI"
+  }
+}
